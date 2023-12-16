@@ -1,0 +1,257 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <algorithm>
+using namespace std;
+short count_x, count_o;
+class Board
+{
+protected:
+    int n_rows, n_cols;
+    char **board;
+    int n_moves = 0;
+
+public:
+    virtual bool update_board(int x, int y, char symbol) = 0;
+    virtual bool is_winner() = 0;
+    virtual bool is_draw() = 0;
+    virtual void display_board() = 0;
+    virtual bool game_is_over() = 0;
+};
+class Player {
+protected:
+    string name;
+    char symbol;
+public:
+    Player(char symbol){
+        this->symbol = symbol;
+    }
+    Player(int order, char symbol)
+    {
+        cout << "Welcome player " << order << endl;
+        cout << "Please enter your name: ";
+        cin >> name ;
+        this->symbol = symbol;
+    }
+    virtual void get_move(int& x, int& y) = 0;
+    string to_string();
+    char get_symbol();
+};
+class TicTacToe_Board:public Board{
+public:
+    TicTacToe_Board(){
+        n_rows = n_cols = 5;
+        board = new char *[n_rows];
+        for (int i = 0; i < n_rows; i++)
+        {
+            board[i] = new char[n_cols];
+            for (int j = 0; j < n_cols; j++)
+                board[i][j] = 0;
+        }
+    }
+    bool update_board(int x, int y, char mark)
+    {
+        // Only update if move is valid
+        if (!(x < 0 || x > 4 || y < 0 || y > 4) && (board[x][y] == 0))
+        {
+            board[x][y] = toupper(mark);
+            n_moves++;
+            return true;
+        }
+        else
+            return false;
+    }
+    void display_board()
+    {
+        for (int i : {0, 1, 2, 3, 4})
+        {
+            cout << "\n| ";
+            for (int j : {0, 1, 2, 3, 4})
+            {
+                cout << setw(2) << board[i][j] << " |";
+            }
+            cout << "\n----------------------";
+        }
+        cout << endl;
+    }
+    bool is_winner()
+    {
+        if (n_moves == 24)
+        {
+            for (int i : {0, 1, 2, 3, 4})
+            {
+                for (int j : {1, 2, 3})
+                {
+                    if (board[i][j] == board[i][j - 1] && board[i][j] == board[i][j + 1])
+                    {
+                        if (board[i][j] == 'X')
+                            count_x++;
+                        else if (board[i][j] == 'O')
+                            count_o++;
+                    }
+                }
+            }
+            for (int i : {1, 2, 3})
+            {
+                for (int j : {0, 1, 2, 3, 4})
+                {
+                    if (board[i][j] == board[i - 1][j] && board[i][j] == board[i + 1][j])
+                    {
+                        if (board[i][j] == 'X')
+                            count_x++;
+                        else if (board[i][j] == 'O')
+                            count_o++;
+                    }
+                }
+            }
+            for (int i : {1, 2, 3})
+            {
+                for (int j : {1, 2, 3})
+                {
+                    for (int k : {1})
+                    {
+                        if (board[i][j] == board[i - k][j - k] && board[i][j] == board[i + k][j + k])
+                        {
+                            if (board[i][j] == 'X')
+                                count_x++;
+                            else if (board[i][j] == 'O')
+                                count_o++;
+                        }
+                        if (board[i][j] == board[i - k][j + k] && board[i][j] == board[i + k][j - k])
+                        {
+                            if (board[i][j] == 'X')
+                                count_x++;
+                            else if (board[i][j] == 'O')
+                                count_o++;
+                        }
+                    }
+                }
+            }
+            if (count_x != count_o)
+                return true;
+
+            return false;
+
+        }
+
+    }
+
+    bool is_draw()
+    {
+        return (n_moves == 24 && !is_winner());
+    }
+    bool game_is_over(){
+        return n_moves >= 24;
+    }
+    bool is_valid(int x, int y){
+        if(board[x][y] == 0){
+            return true;
+        } else
+            return false;
+    }
+};
+class TicTacToe_Player:public Player{
+public:
+    TicTacToe_Player(char symbol): Player(symbol){}
+    TicTacToe_Player(int order, char symbol): Player(order,symbol){}
+    void get_move(int &x, int &y)
+    {
+        cout << "\nPlease enter your move x and y (0 to 4) separated by spaces: ";
+        cin >> x >> y;
+    }
+    string to_string()
+    {
+        return name;
+    }
+    char get_symbol()
+    {
+        return symbol;
+    }
+};
+class TicTacToe_RandomPlayer:public TicTacToe_Player {
+protected:
+    int dimension;
+public:
+    // Take a symbol and pass it to parent
+    TicTacToe_RandomPlayer (char symbol, int dimension):TicTacToe_Player(symbol) {
+        this->dimension = dimension;
+        this->name = "Random Computer Player";
+        cout << "My names is " << name << endl;
+    }
+    // Generate a random move
+
+    void get_move(int &x, int &y){
+
+        x = (int) (rand() / (RAND_MAX + 1.0) * dimension);
+        y = (int) (rand() / (RAND_MAX + 1.0) * dimension);
+
+    }
+};
+class TicTacToe_GameManager{
+private:
+    TicTacToe_Player* players[2];
+public:
+    TicTacToe_GameManager(TicTacToe_Player* playerPtr[2]){
+        players[0] = playerPtr[0];
+        players[1] = playerPtr[1];
+    }
+    void run(){
+        TicTacToe_Board x1;
+        while (!x1.game_is_over()) {
+            for (int i = 1; i <= 12; i++) {
+                int x, y;
+                for (int i = 0; i < 2; i++) {
+                    x1.display_board();
+                    cout << players[i]->get_symbol() << ": turn";
+                    players[i]->get_move(x, y);
+                    if(x1.is_valid(x,y)) {
+                        x1.update_board(x, y, players[i]->get_symbol());
+                    } else{
+                        while (!x1.is_valid(x,y)){
+                            players[i]->get_move(x, y);
+                        }
+                        x1.update_board(x, y, players[i]->get_symbol());
+                    }
+                }
+            }
+
+
+        }
+        x1.display_board();
+        x1.is_winner();
+        if (count_x > count_o)
+        {
+            cout << players[0]->to_string() << " wins\n";
+            return;
+        }
+        else if (count_x < count_o)
+        {
+            cout << players[1]->to_string() << " wins\n";
+            return;
+        }
+        else if (x1.is_draw())
+        {
+            cout << "Draw!\n";
+            return;
+        }
+
+    }
+
+};
+
+int main(){
+    int choice;
+    TicTacToe_Player *players[2];
+    cout <<"Welcome to our game :)" << endl;
+    players[0] = new TicTacToe_Player(1,'x');
+    cout << "Press 1 if you want to play against another player " << endl;
+    cout << "Press 2 if you want a random computer player: ";
+    cin >> choice;
+    if (choice == 1)
+        players[1] = new TicTacToe_Player (2, 'o');
+    else
+        players[1] = new TicTacToe_RandomPlayer('o', 5);
+
+    TicTacToe_GameManager game(players);
+    game.run();
+}
