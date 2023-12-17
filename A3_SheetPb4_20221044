@@ -1,0 +1,82 @@
+// File name: A3_SheetPb4_20221044.cpp
+// Purpose: Tamplate-Set.
+// Author(s): Ganna Mohamed IBRAHIM HELAL
+// ID(s): 20221044
+// Section: s7
+// Date: 9/12/2023
+
+#include <bits/stdc++.h>
+using namespace std;
+template <typename T>
+class MySet {
+private:
+    vector<T>items; // stl that have the items i will do the operators on (add, erase ,...)
+
+public:
+    MySet(){
+
+    }
+    bool found(T item)
+    {
+        bool find = 0;
+        for(int i=0; i<items.size(); i++)
+        {
+            if(items[i]==item)
+            {
+                find =1;
+                break;
+            }
+        }
+        return find;
+
+    }
+
+    void add(T item){
+
+        if(found(item)==0) {
+            items.push_back(item);
+            sort(items.begin(), items.end());
+        }
+    }
+    void remove(T item)
+    {
+        for(int i=0; i<items.size(); i++)
+        {
+            if(items[i]==item)
+            {
+                items.erase(items.begin()+i);
+            }
+        }
+    }
+    int Size()
+    {
+        return items.size();
+
+    }
+    T* array()
+    {
+        T *ptr = new T[items.size()];
+        copy(items.begin(), items.end(), ptr);
+        return ptr;
+    }
+
+};
+
+
+int main() {
+    MySet<string>st;
+    st.add("mango");
+    st.add("apple");
+    st.add("grape");
+    st.add("kiwi");
+    cout << "Size " << st.Size()<< endl;
+    st.remove("mango");
+    cout << "After removing " << st.Size()<< endl;
+
+    string* ptr = st.array();
+    for(int i=0; i<st.Size(); i++)
+    {
+        cout<< ptr[i]<< endl;
+    }
+    return 0;
+}
