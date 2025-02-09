@@ -1,0 +1,4 @@
+# ninja log v5
+0	416	7255888594510314	CMakeFiles/game.dir/main.cpp.obj	f9c9716419aa89c8
+5	611	7255888596454784	CMakeFiles/game.dir/X_O_Board_App.cpp.obj	d7c6b425d0ac8d17
+611	753	7255888597851053	game.exe	ff379aee579b3005
